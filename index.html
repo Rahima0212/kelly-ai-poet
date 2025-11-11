@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Kelly — AI Scientist Poet</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="chat-wrapper">
+    <h1>Kelly — AI Scientist Poet</h1>
+
+    <div id="chat-box"></div>
+
+    <div class="input-row">
+      <input id="msg" type="text" placeholder="Ask Kelly anything..." autofocus>
+      <button id="send">Send</button>
+    </div>
+  </div>
+
+<script>
+async function send() {
+  const msgField = document.getElementById("msg");
+  const chatBox = document.getElementById("chat-box");
+  const message = msgField.value.trim();
+  if (!message) return;
+
+  chatBox.innerHTML += `<div class="bubble user">You: ${message}</div>`;
+  msgField.value = "";
+
+  const res = await fetch("https://rahimavp.pythonanywhere.com/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({message})
+  });
+
+  const data = await res.json();
+  if (data.reply) {
+    chatBox.innerHTML += `
+  <div class="kelly-row">
+    <img src="/static/kelly.png" class="kelly-avatar">
+    <div class="bubble kelly">Kelly: ${data.reply}</div>
+  </div>
+`;
+
+  } else {
+    chatBox.innerHTML += `<div class="bubble error">⚠️ ${data.error}</div>`;
+  }
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+document.getElementById("send").onclick = send;
+document.getElementById("msg").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") send();
+});
+</script>
+</body>
+</html>
